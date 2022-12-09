@@ -15,6 +15,10 @@
 #define AI_FLAG_ITERATIONS                  32
 #define AI_FLAG_AVOID_REPEATED_TABLES       64
 
+#define MINIMAX_FLAG_TOP                    1
+#define MINIMAX_FLAG_DBG                    2
+
+
 #define AI_FLAG_ALL             (0xffff - AI_FLAG_DEBUG - AI_FLAG_AVOID_REPEATED_TABLES)
 
 class Ai
@@ -43,7 +47,7 @@ class Ai
         int iterationEnabled[64] = {0};
         PrincipleVariation pv;
 
-        int minimax(Board b, int depth, int alpha, int beta, int isTop);
+        int minimax(Board b, int depth, int maxDepth, int alpha, int beta, int flags);
         void ainit(Board& board, int depth, int flags);
         int evaluateRepeatedTablesAsPossibleDrawEndResults(Board b);
         int checkIfMate(Board b);

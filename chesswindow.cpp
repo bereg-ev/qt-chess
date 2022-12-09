@@ -32,7 +32,6 @@ ChessWindow::ChessWindow(QWidget *parent) : QWidget(parent), ui(new Ui::ChessWin
     boards.clear();
 
 //    Board b = Board("........ .Q...N.. ...k.P.. ........ ......B. ....K... ........ ........", "033");    // !! huszart leutteti
-//    Board b = Board("........ .B...... ........ .....K.. ........ ....k... ..Q..P.. ........", "033");  // !! miert nem viszi be a gyalogot?
 
     Board b;
 
@@ -42,9 +41,6 @@ ChessWindow::ChessWindow(QWidget *parent) : QWidget(parent), ui(new Ui::ChessWin
 
     printf("boards: %lu\n", boards.size());
 
-//    Board b2 = Board("RR.....K Q....P.P .P..Pp.. ....p... B....... .P.b.... .p....r. kq....r.", "033");
-//    Ai ai1 = Ai(b2, 7, AI_FLAG_ALL);
-//    ai1.print();
 }
 
 void ChessWindow::eventOnScreen(int x, int y)

@@ -382,6 +382,9 @@ void Test::testAi()
     Ai ai10 = Ai(board10, 6, AI_FLAG_ALL);              // it was an AI_SORT bug - not to take the obvious move, the Queen promotion
     myAssert(909, ai10.aiBestMove == Move("f2f12"));
 
+    Board board11("........ .Q...N.. .....P.. ..k..... ......B. ....K... ........ ........", "133");    // !! huszart leutteti
+    Ai ai11 = Ai(board11, 6, AI_FLAG_ALL - AI_FLAG_SORT_MOVES - AI_FLAG_ITERATIONS);
+    myAssert(910, ai11.getMoveValue(Move("f7g5")) > (VAL_MIN + 30));            // check if it can recognize draw deep in the search tree
 }
 
 void Test::testIfCheck()

@@ -66,7 +66,10 @@ void MoveGen::moveKing()
 //    printf("moveKing, castleCheck = %d\n", ((flags & NO_CASTLE_CHECK) != 0));
 
     for (int i = 0; i < sizeof(moveKing) / sizeof(int); i++)
-        movePiece(moveKing[i]);
+    {
+//        if ((flags & NO_CASTLE_CHECK) == 0 && checkIfKingIsHitable(moveKing[i]) == 0)
+            movePiece(moveKing[i]);
+    }
 
     if ((board.castlingProhibited[board.nextPlayer] & CASTLING_SHORT) == 0)
         if (board.table[shortCastle[3 * board.nextPlayer + 1]] == EMPTY_POSITION && board.table[shortCastle[3 * board.nextPlayer + 2]] == EMPTY_POSITION)

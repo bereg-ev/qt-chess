@@ -29,12 +29,13 @@ int Ai::checkIfMate(Board b)
     return 0;
 }
 
-int Ai::minimax(Board b, int depth, int alpha, int beta, int isTop)
+int Ai::minimax(Board b, int depth, int maxDepth, int alpha, int beta, int flags)
 {
     int val[250];
     int ret;
     int alphaNext = alpha;
     int betaNext = beta;
+    int isTop = (flags & MINIMAX_FLAG_TOP) != 0;
 
     Move bestMove, tmp;
     int bestVal;
@@ -46,7 +47,6 @@ int Ai::minimax(Board b, int depth, int alpha, int beta, int isTop)
     }
 
     MoveGen m(b, isTop ? CHECK_VALIDITY : NO_DEBUG, depth);
-//    MoveGen m(b, CHECK_VALIDITY, depth);
 
     if (aiSortMoves)
     {
@@ -89,29 +89,43 @@ int Ai::minimax(Board b, int depth, int alpha, int beta, int isTop)
         }
 
     }
-//    else
-//    {
-//        for (int i = 0; i < m.moveNum; i++)
-//            moves[i] = m.moves[i];
-//    }
 
     int actualMoves = m.moveNum;
 
     pv.initDeeperLevel(depth);
+    int nextFlag = 0;
 
     for (int i = 0; i < m.moveNum; i++)
     {
         Board outBoard;
         Evaluate e(b, outBoard, m.moves[i], aiDepth - depth);
         moveCnt++;
-
+/*
+        if (depth == 6 && m.moves[i] == Move("f7g5"))
+        {
+            printf("!!! f7g5\n");
+            nextFlag = MINIMAX_FLAG_DBG;
+        }
+        else if ((flags & MINIMAX_FLAG_DBG) != 0 && depth == 5 && m.moves[i] == Move("c5c4"))
+        {
+            printf("!!! c5c4\n");
+            nextFlag = MINIMAX_FLAG_DBG;
+        }
+        else if ((flags & MINIMAX_FLAG_DBG) != 0 && depth == 4 && m.moves[i] == Move("g5e4"))
+        {
+            printf("!!! g5e4\n");
+            nextFlag = MINIMAX_FLAG_DBG;
+        }
+*/
 tmpMoves[depth - 1] = m.moves[i];
 
 //printf("try: depth=%d, move=", depth);
 //moves[i].println();
 
-        if (outBoard.val == VAL_MIN || outBoard.val == VAL_MAX)             // don't continue without a King
-            return outBoard.val;
+        if (outBoard.val == VAL_MIN)                // don't continue without a King
+            return VAL_MIN + (aiDepth - depth);
+        else if (outBoard.val == VAL_MAX)
+            return VAL_MAX - (aiDepth - depth);
 
         if (isTop && aiRepeatedTables && evaluateRepeatedTablesAsPossibleDrawEndResults(outBoard))
             outBoard.val = val[i] = 0;
@@ -131,7 +145,7 @@ tmpMoves[depth - 1] = m.moves[i];
             }
 
             if (isMateOrDraw == 0)
-                val[i] = (depth == 1) ? outBoard.val : minimax(outBoard, depth - 1, alphaNext, betaNext, 0);
+                val[i] = (depth == 1) ? outBoard.val : minimax(outBoard, depth - 1, 0, alphaNext, betaNext, nextFlag);
         }
 
         if (aiAlphaBeta)
@@ -147,9 +161,9 @@ tmpMoves[depth - 1] = m.moves[i];
 
     if (b.nextPlayer == 0)      // WHITE moves -> maximize
     {
-        int max = VAL_MIN + (aiDepth - depth);
+        int max = VAL_MIN; // + (aiDepth - depth);
 
-        for (int i = 0; i < actualMoves; i++)
+        for (int i = 0; i < m.moveNum; i++)
         {
             if (val[i] >= max)
             {
@@ -169,9 +183,9 @@ tmpMoves[depth - 1] = m.moves[i];
     }
     else                        // BLACK moves -> minimize
     {
-        int min = VAL_MAX - (aiDepth - depth);
+        int min = VAL_MAX; // - (aiDepth - depth);
 
-        for (int i = 0; i < actualMoves; i++)
+        for (int i = 0; i < m.moveNum; i++)
         {
             if (val[i] <= min)
             {
@@ -205,6 +219,33 @@ tmpMoves[depth - 1] = m.moves[i];
 
     if (aiDebug)
         bestMove.println();
+/*
+    if ((flags & MINIMAX_FLAG_DBG) != 0)
+    {
+        printf("---------------- depth = %d\n", depth);
+        b.print();
+
+        for (int i = 0; i < m.moveNum; i++)
+        {
+            printf("move %2d: val = %5d  ", i + 1, val[i]);
+            m.moves[i].println();
+        }
+
+        printf("BEST MOVE:  ");
+        bestMove.print();
+        printf(", val = %d\n", ret);
+    }
+*/
+    if (ret <= VAL_MIN + 30 || ret >= VAL_MAX - 30)
+    {
+        MoveGen mIfDraw = MoveGen(b, CHECK_VALIDITY, depth);
+
+        if (mIfDraw.moveNum == 0)
+        {
+            if (!checkIfMate(b))
+                return 0;
+        }
+    }
 
     return ret;
 }
@@ -252,7 +293,7 @@ void Ai::ainit(Board& board, int depth, int flags)
         pv.init(aiDepth, board.nextPlayer);
 
         Board b = board;
-        result = minimax(b, iteration, VAL_MIN, VAL_MAX, 1);
+        result = minimax(b, iteration, 0, VAL_MIN, VAL_MAX, MINIMAX_FLAG_TOP);
         iterationResults[iteration] = aiBestMove;
         iterationEnabled[iteration] = 1;
     }
