@@ -45,12 +45,13 @@ class Ai
 
         Move iterationResults[64];
         int iterationEnabled[64] = {0};
-        PrincipleVariation pv;
+        PrincipleVariation pv, pvPrev;
 
         int minimax(Board b, int depth, int maxDepth, int alpha, int beta, int flags);
         void ainit(Board& board, int depth, int flags);
         int evaluateRepeatedTablesAsPossibleDrawEndResults(Board b);
         int checkIfMate(Board b);
+        void aiDbg(Board b);
 
         Move tmpMoves[MAX_DEPTH];
 

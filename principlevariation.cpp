@@ -1,6 +1,8 @@
 #include "principlevariation.h"
 #include "board.h"
 
+//#define DBG
+
 void PrincipleVariation::init(int depth, int nextPlayerIsWhite)
 {
     if (depth == 0)
@@ -14,42 +16,59 @@ void PrincipleVariation::init(int depth, int nextPlayerIsWhite)
         for (int j = 0; j < MAX_DEPTH; j++)
             val[i][j] = isUtilized[i][j] = 0;
 
-        bestVal[i] = ((i % 2) == nextPlayerIsWhite) ? VAL_MIN : VAL_MAX;
+        bestVal[i] = ((i % 2) != nextPlayerIsWhite) ? VAL_MIN : VAL_MAX;
+#ifdef DBG
 //        printf("bestVal[%d] = %d\n", i, bestVal[i]);
+#endif
     }
 }
 
 void PrincipleVariation::initDeeperLevel(int depth)
 {
-    if (depth != 1)
-        isUtilized[depth - 2][depth - 2] = 0;
+    if (depth < maxDepth - 1)
+        isUtilized[depth + 1][depth + 1] = 0;
 }
 
 int PrincipleVariation::checkIfBestMove(int depth, Move bestMove, int val)
 {
     int ret = 0;
 
-    if (((depth % 2) == nextPlayerIsWhite && val < bestVal[depth - 1]) ||
-            ((depth % 2) != nextPlayerIsWhite && val > bestVal[depth - 1]))
+    moves[depth][depth] = bestMove;
+//    bestVal[depth] = val;
+    isUtilized[depth][depth] = 1;
+
+    if (((depth % 2) != nextPlayerIsWhite && val > bestVal[depth]) ||
+            ((depth % 2) == nextPlayerIsWhite && val < bestVal[depth]))
     {
+        bestVal[depth] = val;
         ret = 1;
-/*
+
+#ifdef DBG
         printf("*** better: depth=%d, val=%d, move=", depth, val);
         bestMove.println();
-*/
-        moves[depth - 1][depth - 1] = bestMove;
-        bestVal[depth - 1] = val;
-        isUtilized[depth - 1][depth - 1] = 1;
+        printf("*** path: ");
 
-        if (depth != 1)
+        for (int i = 0; i <= depth; i++)
         {
-            for (int i = 1; i < maxDepth; i++)
+            path[i].print();
+
+            if (i != depth)
+                printf(", ");
+        }
+
+        printf("\n");
+#endif
+
+        if (depth != maxDepth - 1)
+        {
+            for (int i = depth + 1; i < maxDepth; i++)
             {
-                moves[depth - 1 - i][depth - 1] = moves[depth - 1 - i][depth - 2];
-                isUtilized[depth - 1 - i][depth - 1] = 1;
+                moves[depth][i] = moves[depth + 1][i];
+                isUtilized[depth][i] = 1;
             }
         }
-/*
+
+#ifdef DBG
         for (int i = 0; i < maxDepth; i++)
         {
             printf("+ val[%d] = ", bestVal[i]);
@@ -67,7 +86,8 @@ int PrincipleVariation::checkIfBestMove(int depth, Move bestMove, int val)
 
             printf("\n");
         }
-*/
+#endif
+
     }
 
     return ret;
@@ -79,18 +99,23 @@ void PrincipleVariation::print()
 
     for (int i = 0; i < maxDepth; i++)
     {
-        if (isUtilized[i][maxDepth - 1] != 0)
+        if (isUtilized[0][i] != 0)
         {
-            moves[i][maxDepth - 1].print();
+            moves[0][i].print();
 
             if (i != maxDepth - 1)
-                printf(" ,");
+                printf(", ");
         }
         else
             printf("XXX ");
     }
 
     printf("\n");
+}
+
+void PrincipleVariation::addPath(int depth, Move m)
+{
+    path[depth] = m;
 }
 
 PrincipleVariation::PrincipleVariation()

@@ -343,9 +343,9 @@ void Test::testAi()
     myAssert(901, ai2.aiBestMove == Move("a1c2"));             // test if saving the Knight is the best move
 
     Board board3("....K..R ........ ........ ........ ........ ........ ppp..... k.......", "033");
-    Ai ai3 = Ai(board3, 4, AI_FLAG_NONE | AI_FLAG_ALPHA_BETA);
-    myAssert(902, ai3.getMoveValue(Move("a1b1")) < -VAL_KING);
-    myAssert(903, ai3.getMoveValue(Move("a2a3")) > -VAL_KING);     // test if avoiding the checkmate is the solution
+    Ai ai3 = Ai(board3, 4, AI_FLAG_NONE);
+    myAssert(902, ai3.getMoveValue(Move("a1b1")) < -VAL_KING);      // test if avoiding the checkmate is the solution
+    myAssert(903, ai3.getMoveValue(Move("a2a3")) > -VAL_KING);     // alpha-beta MUST be disabled
 
     Board board4("........ b......R K.....P. .r...... ........ ........ kq...... ........", "033");
     Ai ai4 = Ai(board4, 5, AI_FLAG_ALPHA_BETA | AI_FLAG_ITERATIONS | AI_FLAG_SORT_MOVES);   // https://telex.hu/sport/2022/10/15/a-leszoritott-kiralynak-nincs-sok-eselye-megis-kell-egy-jo-otlet
@@ -354,7 +354,7 @@ void Test::testAi()
 
   //    1.5 sec
     Board board5("R..R...K P.....PP ....r... ..Q..P.q .Nbr.... ....p... .p...ppp ......k.", "033");
-    Ai ai5 = Ai(board5, 7, AI_FLAG_ALL);    // https://artline.hu/sakk_matt-harom-lepes
+    Ai ai5 = Ai(board5, 7, AI_FLAG_ALL);    // https://artline.hu/sakk_matt-harom-lepes,  r2r3k/p5pp/4R3/2q2p1Q/1nBR4/4P3/1P3PPP/6K1 w - - 0 1
     myAssert(905, ai5.aiBestMove == Move("h5h7x"));         //
 
     Board board6("........ ..K..... ........ ........ ........ ........ .......q ....k...", "033");
@@ -385,6 +385,11 @@ void Test::testAi()
     Board board11("........ .Q...N.. .....P.. ..k..... ......B. ....K... ........ ........", "133");    // !! huszart leutteti
     Ai ai11 = Ai(board11, 6, AI_FLAG_ALL - AI_FLAG_SORT_MOVES - AI_FLAG_ITERATIONS);
     myAssert(910, ai11.getMoveValue(Move("f7g5")) > (VAL_MIN + 30));            // check if it can recognize draw deep in the search tree
+
+    Board board12("K....... ........ ........ ........ .....p.. ........ ........ ...k....", "033");
+    Ai ai12 = Ai(board12, 6, AI_FLAG_ALL);
+    myAssert(911, ai12.aiBestMove == Move("f4f5"));
+
 }
 
 void Test::testIfCheck()
@@ -431,6 +436,21 @@ Test::Test()
 {
     numOfTestsDone = 0;
 
+    // h6 h7, a8 b7, h7 h8 q, b7 c6     -> amikor a 902 erteku b7c6 kialakul, akkor nincs pv uzenet (***better), miert??
+    // ... es emiatt b7c6 nem kerul tablazat[3][3]-ba
+
+/*
+    Board board5("K....... ........ .......p ........ ........ ........ ........ k.......", "033");
+    Ai ai5 = Ai(board5, 4, AI_FLAG_ALL - AI_FLAG_ITERATIONS); // + AI_FLAG_DEBUG);
+    ai5.print();
+    exit(1);
+*/
+/*
+    Board board5("R..R...K P.....PP ....r... ..Q..P.q .Nbr.... ....p... .p...ppp ......k.", "033");
+    Ai ai5 = Ai(board5, 8, AI_FLAG_ALL);    // https://artline.hu/sakk_matt-harom-lepes,  r2r3k/p5pp/4R3/2q2p1Q/1nBR4/4P3/1P3PPP/6K1 w - - 0 1
+    myAssert(905, ai5.aiBestMove == Move("h5h7x"));         //
+    exit(1);
+*/
     Board board;
     Board board2("RNBQKBNRPPPPPPPP................................pppppppprnbqkbnr", "000");            // check if the default board is correct
     myAssert(1, (board == board2));
@@ -460,19 +480,27 @@ Test::Test()
 
 /*
 
-//  https://lichess.org/editor/
+// + depth ne inverz legyen, azaz 1 jelentse az aktualis lepesre adott lehetosegeket, es N az N melysegu lepest
+// fovaltozat
 
-// depth ne inverz legyen, azaz 1 jelentse az aktualis lepesre adott lehetosegeket, es N az N melysegu lepest
+// lepesrendezes
 
-//  miert nem akarja a gyalogot bevinni: Board("........ .B...... ........ .....K.. ........ ....k... ..Q..P.. ........", "033");
-    // mert egy csomo -16000-es lepes van, kozte a promotion, de nem azt valasztja
-    // mert ha a 3. lepesben viszi be, akkor is ugyanaz a Val jon letre, es ezert nem az 1. lepesben promotal
+// horizont effektus, utesnel nagyobb melyseg
+
+// elore torteno vagas ???
+
+// FEN formatum
+
 
 // sakk, matt, patt felismerese es kiirasa UI-ra
+
+// valtozo melyseg: utes eseten, valamint idolimitig
 
 // UI: promotion, most csak default Q
 
 // babu class-ok
+
+//  https://lichess.org/editor/
 
 // https://telex.hu/sport/2022/10/30/tanpelda-vedelem-feltorese
 // https://photos.google.com/photo/AF1QipPe2jaJr_oi3uny6d8ZUOwaZ-k9grlMRf9XKPBo

@@ -51,21 +51,23 @@ int Ai::minimax(Board b, int depth, int maxDepth, int alpha, int beta, int flags
     if (aiSortMoves)
     {
         int moveFromBeginning = 0;
-/*
-        if (aiIterations && isTop && depth > 0 && iterationEnabled[depth - 1])          // ez elbassza a 909-es tesztet
-        {
 
-            int id = m.getMoveId(iterationResults[depth - 1]);
+        if (aiIterations && pvPrev.isUtilized[0][depth] && depth == 0)
+        {
+            int id = m.getMoveId(pvPrev.moves[0][depth]);
 
             if (id > 0 && m.moveNum > 1 && id < m.moveNum)
             {
+//                printf("AAA ");
+//                m.moves[id].println();
+
                 tmp = m.moves[moveFromBeginning];
                 m.moves[moveFromBeginning] = m.moves[id];
                 m.moves[id] = tmp;
                 moveFromBeginning++;
             }
         }
-*/
+
         for (int i = moveFromBeginning + 1; i < m.moveNum - 1; i++)
         {
             if ((m.moves[i].flags & (CHESS_FLAG_PROMOTION)) != 0)
@@ -92,40 +94,48 @@ int Ai::minimax(Board b, int depth, int maxDepth, int alpha, int beta, int flags
 
     int actualMoves = m.moveNum;
 
-    pv.initDeeperLevel(depth);
+    pv.initDeeperLevel(maxDepth);
     int nextFlag = 0;
 
     for (int i = 0; i < m.moveNum; i++)
     {
         Board outBoard;
-        Evaluate e(b, outBoard, m.moves[i], aiDepth - depth);
+        Evaluate e(b, outBoard, m.moves[i], depth);
         moveCnt++;
+
+        if (aiDebug)
+        {
+            printf("-> MOVE: ");
+            m.moves[i].println();
+        }
+
+        pv.addPath(depth, m.moves[i]);
 /*
-        if (depth == 6 && m.moves[i] == Move("f7g5"))
+        if (depth == 0 && m.moves[i] == Move("h6h7"))
         {
-            printf("!!! f7g5\n");
+            printf("!!! h6h7\n");
             nextFlag = MINIMAX_FLAG_DBG;
         }
-        else if ((flags & MINIMAX_FLAG_DBG) != 0 && depth == 5 && m.moves[i] == Move("c5c4"))
+        else if ((flags & MINIMAX_FLAG_DBG) != 0 && depth == 1 && m.moves[i] == Move("a8b7"))
         {
-            printf("!!! c5c4\n");
+            printf("!!! a8b7\n");
             nextFlag = MINIMAX_FLAG_DBG;
         }
-        else if ((flags & MINIMAX_FLAG_DBG) != 0 && depth == 4 && m.moves[i] == Move("g5e4"))
+        else if ((flags & MINIMAX_FLAG_DBG) != 0 && depth == 2 && m.moves[i] == Move("h7h82"))
         {
-            printf("!!! g5e4\n");
+            printf("!!! h7h82\n");
             nextFlag = MINIMAX_FLAG_DBG;
         }
 */
-tmpMoves[depth - 1] = m.moves[i];
+// ??? tmpMoves[depth - 1] = m.moves[i];
 
 //printf("try: depth=%d, move=", depth);
 //moves[i].println();
 
         if (outBoard.val == VAL_MIN)                // don't continue without a King
-            return VAL_MIN + (aiDepth - depth);
+            return VAL_MIN + depth;
         else if (outBoard.val == VAL_MAX)
-            return VAL_MAX - (aiDepth - depth);
+            return VAL_MAX - depth;
 
         if (isTop && aiRepeatedTables && evaluateRepeatedTablesAsPossibleDrawEndResults(outBoard))
             outBoard.val = val[i] = 0;
@@ -145,7 +155,7 @@ tmpMoves[depth - 1] = m.moves[i];
             }
 
             if (isMateOrDraw == 0)
-                val[i] = (depth == 1) ? outBoard.val : minimax(outBoard, depth - 1, 0, alphaNext, betaNext, nextFlag);
+                val[i] = (depth >= maxDepth - 1) ? outBoard.val : minimax(outBoard, depth + 1, maxDepth, alphaNext, betaNext, nextFlag);
         }
 
         if (aiAlphaBeta)
@@ -161,7 +171,7 @@ tmpMoves[depth - 1] = m.moves[i];
 
     if (b.nextPlayer == 0)      // WHITE moves -> maximize
     {
-        int max = VAL_MIN; // + (aiDepth - depth);
+        int max = VAL_MIN;
 
         for (int i = 0; i < m.moveNum; i++)
         {
@@ -183,7 +193,7 @@ tmpMoves[depth - 1] = m.moves[i];
     }
     else                        // BLACK moves -> minimize
     {
-        int min = VAL_MAX; // - (aiDepth - depth);
+        int min = VAL_MAX;
 
         for (int i = 0; i < m.moveNum; i++)
         {
@@ -219,7 +229,7 @@ tmpMoves[depth - 1] = m.moves[i];
 
     if (aiDebug)
         bestMove.println();
-/*
+
     if ((flags & MINIMAX_FLAG_DBG) != 0)
     {
         printf("---------------- depth = %d\n", depth);
@@ -235,7 +245,7 @@ tmpMoves[depth - 1] = m.moves[i];
         bestMove.print();
         printf(", val = %d\n", ret);
     }
-*/
+
     if (ret <= VAL_MIN + 30 || ret >= VAL_MAX - 30)
     {
         MoveGen mIfDraw = MoveGen(b, CHECK_VALIDITY, depth);
@@ -287,23 +297,42 @@ void Ai::ainit(Board& board, int depth, int flags)
     aiRepeatedTables = (flags & AI_FLAG_AVOID_REPEATED_TABLES) != 0;
 
     moveCnt = 0;
+    pvPrev.init(depth, 0);
 
     for (int iteration = (aiIterations ? 1 : depth); iteration <= depth; iteration++)
     {
-        pv.init(aiDepth, board.nextPlayer);
+//        timeOfStart = QDateTime::currentMSecsSinceEpoch();
+
+        pv.init(iteration, board.nextPlayer);
 
         Board b = board;
-        result = minimax(b, iteration, 0, VAL_MIN, VAL_MAX, MINIMAX_FLAG_TOP);
+        result = minimax(b, 0, iteration, VAL_MIN, VAL_MAX, MINIMAX_FLAG_TOP);
+        pvPrev = pv;
         iterationResults[iteration] = aiBestMove;
         iterationEnabled[iteration] = 1;
+/*
+        timeOfFinish = QDateTime::currentMSecsSinceEpoch();
+
+        if (aiMoveNum != 0)
+        {
+            printf("BEST MOVE:  ");
+            aiBestMove.print();
+            printf(", val=%d, %d moves in %llu msec\n", aiBestVal, moveCnt, timeOfFinish - timeOfStart);
+            pv.print();
+        }
+*/
     }
 
     timeOfFinish = QDateTime::currentMSecsSinceEpoch();
 
-    printf("BEST MOVE:  ");
-    aiBestMove.print();
-    printf(", val=%d, %d moves in %llu msec\n", aiBestVal, moveCnt, timeOfFinish - timeOfStart);
-    pv.print();
+    if (aiMoveNum != 0)
+    {
+        printf("BEST MOVE:  ");
+        aiBestMove.print();
+        printf(", val=%d, %d moves in %llu msec\n", aiBestVal, moveCnt, timeOfFinish - timeOfStart);
+        pv.print();
+    }
+
     fflush(0);
 }
 

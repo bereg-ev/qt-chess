@@ -32,6 +32,9 @@ ChessWindow::ChessWindow(QWidget *parent) : QWidget(parent), ui(new Ui::ChessWin
     boards.clear();
 
 //    Board b = Board("........ .Q...N.. ...k.P.. ........ ......B. ....K... ........ ........", "033");    // !! huszart leutteti
+//    Board b("N..QK... ........ B.n.p..N ..q.p..R ..b..... .....n.P .......P ..kr....", "033");
+
+//    Board b("........ .B...... ........ .....K.. ........ ....k... ..Q..P.. ........", "033");
 
     Board b;
 
@@ -162,7 +165,6 @@ void ChessWindow::paintEvent(QPaintEvent *event)
                 painter.drawRect(QRect(50 + 4 + col * GRID_SIZE, 50 + 4 + row * GRID_SIZE, GRID_SIZE - 1 - 8, GRID_SIZE - 1 - 8));
             }
         }
-
     }
 
     pen.setColor(Qt::black);
@@ -196,13 +198,19 @@ void ChessWindow::timerEvent(QTimerEvent *event)
     {
         Board newBoard;
         Ai ai = Ai(boards.back().board, 6, AI_FLAG_ALL, boards);
-        ai.print();
-        Evaluate e = Evaluate(boards.back().board, newBoard, ai.aiBestMove, 1);
-        newBoard.println();
-        fflush(0);
-        boards.push_back(Game(newBoard, 0));
-        keyInputStr = "";
-        state = 0;
+
+        if (ai.aiMoveNum)
+        {
+            ai.print();
+            Evaluate e = Evaluate(boards.back().board, newBoard, ai.aiBestMove, 1);
+            newBoard.println();
+            fflush(0);
+            boards.push_back(Game(newBoard, 0));
+            keyInputStr = "";
+            state = 0;
+        }
+        else
+            state = 2;
     }
 
     update();
@@ -256,6 +264,9 @@ void ChessWindow::touchEvent(QTouchEvent *ev)
             break;
 
         case QEvent::TouchUpdate:
+            break;
+
+        default:
             break;
     }
 }

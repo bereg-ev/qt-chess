@@ -216,7 +216,7 @@ void MoveGen::checkValidity()
         Board newBoard;
 
         Evaluate e = Evaluate(board, newBoard, moves[i], depth);
-        MoveGen m = MoveGen(newBoard, NO_DEBUG, depth - 1);
+        MoveGen m = MoveGen(newBoard, NO_DEBUG, depth + 1);
 
         int ok = 1;
 

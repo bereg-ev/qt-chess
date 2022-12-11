@@ -45,8 +45,13 @@ Evaluate::Evaluate(Board& inBoard, Board& outBoard, Move move, int depth)
                 if (depth == 0)
                     outBoard.posValue[outBoard.nextPlayer] += POS_VAL_PROMOTION;
             }
-            else if (move.from - move.to == 20 || move.from - move.to == -20)
-                outBoard.enPassantTargetPosition = (move.from + move.to) / 2;
+            else
+            {
+                if (move.from - move.to == 20 || move.from - move.to == -20)
+                    outBoard.enPassantTargetPosition = (move.from + move.to) / 2;
+
+                outBoard.posValue[outBoard.nextPlayer] += 4;        // go to promotion !!!
+            }
 
             break;
 
