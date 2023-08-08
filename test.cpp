@@ -332,6 +332,46 @@ void Test::testEnPassant()
     myAssert(813, board2c.pieceValue[0] - board2b.pieceValue[0] == -VAL_PAWN);
 }
 
+void Test::testDraw()
+{
+    Board board1("....K... ........ ........ ........ ........ ........ ...q.... ......k.", "033");
+    Ai ai1 = Ai(board1, 4, AI_FLAG_ALL);
+    myAssert(1100, ai1.getMoveValue(Move("d2e2")) > 0);
+    std::list<Game> boards;
+    Board board1b("....K... ........ ........ ........ ........ ........ ....q... ......k.", "133");
+    boards.push_back(Game(board1b, 0));
+    boards.push_back(Game(board1b, 0));
+    Ai ai2 = Ai(board1, 4, AI_FLAG_ALL, boards);
+    myAssert(1101, ai2.getMoveValue(Move("d2e2")) == 0);
+
+    Board board3 = Board("........ ........ .....P.. ..kPNN.. ....B... ....K... .Q...... ........", "133");   //
+    Ai ai3 = Ai(board3, 4, AI_FLAG_ALL);
+    myAssert(1102, !(ai3.aiBestMove == Move("d5d4")));        // d5-d4 causes a Draw which isn't the good solution
+
+}
+
+void Test::testIfCheck()
+{
+    Board board1("........ .......Q ........ .K...... ........ ........ .....p.. .......k", "033");
+    MoveGen moves1a = MoveGen(board1, NO_DEBUG, 1);
+    MoveGen moves1b = MoveGen(board1, CHECK_VALIDITY, 1);
+    myAssert(1000, moves1a.moveNum != moves1b.moveNum);             // check if King escapes from the actual Check
+
+    Board board2("........ .......Q ........ .K...... ........ ........ .....p.. ......k.", "033");
+    MoveGen moves2a = MoveGen(board2, NO_DEBUG, 1);
+    MoveGen moves2b = MoveGen(board2, CHECK_VALIDITY, 1);
+    myAssert(1001, moves2a.moveNum != moves2b.moveNum);             // check if King moves into a Check
+
+    Board board3("........ P....... ........ .....K.. ........ ........ ........ .....qk.", "033");
+    MoveGen moves3a = MoveGen(board3, NO_DEBUG, 1);
+    MoveGen moves3b = MoveGen(board3, CHECK_VALIDITY, 1);
+    myAssert(1002, moves3a.moveNum != moves3b.moveNum);             // check if we can hit the King
+
+    Board board4("RN.QK.NR P.....PP .P..PP.. .pPPpB.. pBpp.... .r..bn.. ...n.ppp ...qkb.r", "020");
+    MoveGen moves4 = MoveGen(board4, CHECK_VALIDITY, 1);
+    myAssert(1003, !moves4.checkIfMoveIsValid(Move("d2b1")));             // check if uncovering the King is allowed
+}
+
 void Test::testAi()
 {
     Board board1("....K... ......p. ........ ........ ........ ........ ........ ....k...", "033");
@@ -392,63 +432,24 @@ void Test::testAi()
 
 }
 
-void Test::testIfCheck()
-{
-    Board board1("........ .......Q ........ .K...... ........ ........ .....p.. .......k", "033");
-    MoveGen moves1a = MoveGen(board1, NO_DEBUG, 1);
-    MoveGen moves1b = MoveGen(board1, CHECK_VALIDITY, 1);
-    myAssert(1000, moves1a.moveNum != moves1b.moveNum);             // check if King escapes from the actual Check
-
-    Board board2("........ .......Q ........ .K...... ........ ........ .....p.. ......k.", "033");
-    MoveGen moves2a = MoveGen(board2, NO_DEBUG, 1);
-    MoveGen moves2b = MoveGen(board2, CHECK_VALIDITY, 1);
-    myAssert(1001, moves2a.moveNum != moves2b.moveNum);             // check if King moves into a Check
-
-    Board board3("........ P....... ........ .....K.. ........ ........ ........ .....qk.", "033");
-    MoveGen moves3a = MoveGen(board3, NO_DEBUG, 1);
-    MoveGen moves3b = MoveGen(board3, CHECK_VALIDITY, 1);
-    myAssert(1002, moves3a.moveNum != moves3b.moveNum);             // check if we can hit the King
-
-    Board board4("RN.QK.NR P.....PP .P..PP.. .pPPpB.. pBpp.... .r..bn.. ...n.ppp ...qkb.r", "020");
-    MoveGen moves4 = MoveGen(board4, CHECK_VALIDITY, 1);
-    myAssert(1003, !moves4.checkIfMoveIsValid(Move("d2b1")));             // check if uncovering the King is allowed
-}
-
-void Test::testDraw()
-{
-    Board board1("....K... ........ ........ ........ ........ ........ ...q.... ......k.", "033");
-    Ai ai1 = Ai(board1, 4, AI_FLAG_ALL);
-    myAssert(1100, ai1.getMoveValue(Move("d2e2")) > 0);
-    std::list<Game> boards;
-    Board board1b("....K... ........ ........ ........ ........ ........ ....q... ......k.", "133");
-    boards.push_back(Game(board1b, 0));
-    boards.push_back(Game(board1b, 0));
-    Ai ai2 = Ai(board1, 4, AI_FLAG_ALL, boards);
-    myAssert(1101, ai2.getMoveValue(Move("d2e2")) == 0);
-
-    Board board3 = Board("........ ........ .....P.. ..kPNN.. ....B... ....K... .Q...... ........", "133");   //
-    Ai ai3 = Ai(board3, 4, AI_FLAG_ALL);
-    myAssert(1102, !(ai3.aiBestMove == Move("d5d4")));        // d5-d4 causes a Draw which isn't the good solution
-
-}
-
 Test::Test()
 {
     numOfTestsDone = 0;
-
-    // h6 h7, a8 b7, h7 h8 q, b7 c6     -> amikor a 902 erteku b7c6 kialakul, akkor nincs pv uzenet (***better), miert??
-    // ... es emiatt b7c6 nem kerul tablazat[3][3]-ba
-
-/*
-    Board board5("K....... ........ .......p ........ ........ ........ ........ k.......", "033");
-    Ai ai5 = Ai(board5, 4, AI_FLAG_ALL - AI_FLAG_ITERATIONS); // + AI_FLAG_DEBUG);
-    ai5.print();
-    exit(1);
-*/
 /*
     Board board5("R..R...K P.....PP ....r... ..Q..P.q .Nbr.... ....p... .p...ppp ......k.", "033");
-    Ai ai5 = Ai(board5, 8, AI_FLAG_ALL);    // https://artline.hu/sakk_matt-harom-lepes,  r2r3k/p5pp/4R3/2q2p1Q/1nBR4/4P3/1P3PPP/6K1 w - - 0 1
-    myAssert(905, ai5.aiBestMove == Move("h5h7x"));         //
+    Ai ai5 = Ai(board5, 6, AI_FLAG_ALL);    // https://artline.hu/sakk_matt-harom-lepes,  r2r3k/p5pp/4R3/2q2p1Q/1nBR4/4P3/1P3PPP/6K1 w - - 0 1
+    ai5.print();
+*/
+/*
+    Board board5("......NK ..B..PPP ...Q.... ........ ........ .......p p....pb. q.....nk", "033");
+    Ai ai5 = Ai(board5, 5, AI_FLAG_ALL - AI_FLAG_ALPHA_BETA);    // konyv 22. abra, sajnos a mattot nem ismerjuk fel azonnal, a2a4-nel miert nem veszi eszre a mattot?
+    ai5.print();
+*/
+/*
+    // rnb1kbnr/1pB2ppp/p3pq2/7B/3N4/2N5/PPP2PPP/R2Q1RK1 b Qkq - 0 1
+    Board b("RNB.KBNR .Pb..PPP P...PQ.. .......b ...n.... ..n..... ppp..ppp r..q.rk.", "130");
+    Ai ai5(b, 8, AI_FLAG_ALL);      // itt 8 fellepes kell, hogy ne legyen vezervesztes, hanem helyette megtalalja a jo lepest
+    ai5.print();
     exit(1);
 */
     Board board;
@@ -480,10 +481,23 @@ Test::Test()
 
 /*
 
-// + depth ne inverz legyen, azaz 1 jelentse az aktualis lepesre adott lehetosegeket, es N az N melysegu lepest
-// fovaltozat
+// pozicio ertekeles:
+   - sokkal nagyobb valtozatossagot visz be a lepesek ertekebe, sokkal jobb alfa-beta lesz belole
+   - ha a huszar kijon, az jo
+   - ha a kiraly sancolhat, az plusz pont
 
-// lepesrendezes
+// move - unmove
+
+// pseudo-valid lepesgeneralas maradjon, vagy legyen full valid?
+   - 2 fellepessel rovidebb kereses is eleg lehet mattokhoz
+
+// lepesrendezes:
+   // --- debug sort: 0. melysegben latni akarom, hogy mindig h5 x h7 volt az elso, amit megnezett
+   // elozo lepes, ami racafol
+   // iterativ kereses: alfa-beta ablak szukitese, ha kimegy, akkor iteracio restart!!!
+
+// !!! http://www.tckerrigan.com/Chess/TSCP/
+// !!! https://adamsccpages.blogspot.com/p/chess-programming-resources.html
 
 // horizont effektus, utesnel nagyobb melyseg
 

@@ -25,6 +25,18 @@ void Board::initWithHumanReadableString(std::string newTable, std::string flags)
     memset(&table[0], OUTSIDE_OF_BOARD, sizeof(table));
     pieceValue[0] = pieceValue[1] = posValue[0] = posValue[1] = 0;
 
+    for (int pos = 0; pos < 2 * 10; pos++)
+    {
+        pieceTable[pos] = PieceInvalid();
+        pieceTable[10 * 10 + pos] = PieceInvalid();
+    }
+
+    for (int line = 0; line < 8; line++)
+    {
+        pieceTable[10 * (line + 2)] = PieceInvalid();
+        pieceTable[10 * (line + 2) + 9] = PieceInvalid();
+    }
+
     for (int line = 0; line < 8; line++)
     {
         for (int col = 0; col < 8; col++)

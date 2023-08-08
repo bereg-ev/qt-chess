@@ -36,6 +36,10 @@ set(PROJECT_SOURCES
         principlevariation.h
         principlevariation.cpp
         config.h
+        piece.h
+        piece.cpp
+        piecepawn.h piecepawn.cpp
+        pieceinvalid.h pieceinvalid.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

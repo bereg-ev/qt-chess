@@ -29,6 +29,17 @@ int Ai::checkIfMate(Board b)
     return 0;
 }
 
+void Ai::printMoves(MoveGen m, char *s)
+{
+    printf("%s\n", s);
+
+    for (int i = 0; i < m.moveNum; i++)
+    {
+        m.moves[i].print();
+        printf(i == m.moveNum - 1 ? "\n" : ", ");
+    }
+}
+
 int Ai::minimax(Board b, int depth, int maxDepth, int alpha, int beta, int flags)
 {
     int val[250];
@@ -46,13 +57,18 @@ int Ai::minimax(Board b, int depth, int maxDepth, int alpha, int beta, int flags
         b.print();
     }
 
-    MoveGen m(b, isTop ? CHECK_VALIDITY : NO_DEBUG, depth);
+    MoveGen m(b, isTop ? CHECK_VALIDITY : (depth >= maxDepth ? ONLY_HITS : NO_DEBUG), depth);
+//    MoveGen m(b, CHECK_VALIDITY, depth);
 
-    if (aiSortMoves)
+#ifdef AI_SORT_DEBUG
+    if (depth == 0)
+        printMoves(m, "Elott");
+#endif
+    if (aiSortMoves && depth < maxDepth)
     {
         int moveFromBeginning = 0;
 
-        if (aiIterations && pvPrev.isUtilized[0][depth] && depth == 0)
+        if (aiIterations && pvPrev.isUtilized[0][depth] && depth < 3)
         {
             int id = m.getMoveId(pvPrev.moves[0][depth]);
 
@@ -68,29 +84,25 @@ int Ai::minimax(Board b, int depth, int maxDepth, int alpha, int beta, int flags
             }
         }
 
-        for (int i = moveFromBeginning + 1; i < m.moveNum - 1; i++)
+//        if (depth < maxDepth)
         {
-            if ((m.moves[i].flags & (CHESS_FLAG_PROMOTION)) != 0)
+            for (int i = moveFromBeginning + 1; i < m.moveNum - 1; i++)
             {
-                tmp = m.moves[moveFromBeginning];
-                m.moves[moveFromBeginning] = m.moves[i];
-                m.moves[i] = tmp;
-                moveFromBeginning++;
+                if ((m.moves[i].flags & (CHESS_FLAG_PROMOTION + CHESS_FLAG_HIT)) != 0)
+                {
+                    tmp = m.moves[moveFromBeginning];
+                    m.moves[moveFromBeginning] = m.moves[i];
+                    m.moves[i] = tmp;
+                    moveFromBeginning++;
+                }
             }
         }
-
-        for (int i = moveFromBeginning + 1; i < m.moveNum - 1; i++)
-        {
-            if ((m.moves[i].flags & (CHESS_FLAG_HIT)) != 0)
-            {
-                tmp = m.moves[moveFromBeginning];
-                m.moves[moveFromBeginning] = m.moves[i];
-                m.moves[i] = tmp;
-                moveFromBeginning++;
-            }
-        }
-
     }
+
+#ifdef AI_SORT_DEBUG
+    if (depth == 0)
+        printMoves(m, "Utan");
+#endif
 
     int actualMoves = m.moveNum;
 
@@ -155,7 +167,8 @@ int Ai::minimax(Board b, int depth, int maxDepth, int alpha, int beta, int flags
             }
 
             if (isMateOrDraw == 0)
-                val[i] = (depth >= maxDepth - 1) ? outBoard.val : minimax(outBoard, depth + 1, maxDepth, alphaNext, betaNext, nextFlag);
+                val[i] = (depth >= maxDepth - 1) ? // && (m.moves[i].flags & CHESS_FLAG_HIT) != 0) ?
+                            outBoard.val : minimax(outBoard, depth + 1, maxDepth, alphaNext, betaNext, nextFlag);
         }
 
         if (aiAlphaBeta)
@@ -286,8 +299,9 @@ int Ai::getMoveValue(Move m)
 
 void Ai::ainit(Board& board, int depth, int flags)
 {
+#ifndef AI_ITERATION_DEBUG
     timeOfStart = QDateTime::currentMSecsSinceEpoch();
-
+#endif
     this->board = board;
     this->aiDepth = depth;
     aiDebug = (flags & AI_FLAG_DEBUG) != 0;
@@ -301,8 +315,9 @@ void Ai::ainit(Board& board, int depth, int flags)
 
     for (int iteration = (aiIterations ? 1 : depth); iteration <= depth; iteration++)
     {
-//        timeOfStart = QDateTime::currentMSecsSinceEpoch();
-
+#ifdef AI_ITERATION_DEBUG
+        timeOfStart = QDateTime::currentMSecsSinceEpoch();
+#endif
         pv.init(iteration, board.nextPlayer);
 
         Board b = board;
@@ -310,7 +325,7 @@ void Ai::ainit(Board& board, int depth, int flags)
         pvPrev = pv;
         iterationResults[iteration] = aiBestMove;
         iterationEnabled[iteration] = 1;
-/*
+#ifdef AI_ITERATION_DEBUG
         timeOfFinish = QDateTime::currentMSecsSinceEpoch();
 
         if (aiMoveNum != 0)
@@ -320,9 +335,12 @@ void Ai::ainit(Board& board, int depth, int flags)
             printf(", val=%d, %d moves in %llu msec\n", aiBestVal, moveCnt, timeOfFinish - timeOfStart);
             pv.print();
         }
-*/
+
+        fflush(0);
+#endif
     }
 
+#ifndef AI_ITERATION_DEBUG
     timeOfFinish = QDateTime::currentMSecsSinceEpoch();
 
     if (aiMoveNum != 0)
@@ -334,6 +352,8 @@ void Ai::ainit(Board& board, int depth, int flags)
     }
 
     fflush(0);
+#endif
+
 }
 
 Ai::Ai(Board& board, int depth, int flags) : board(board)

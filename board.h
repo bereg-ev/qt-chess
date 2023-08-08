@@ -40,6 +40,10 @@
 
 #include <cstring>
 
+#include "piece.h"
+#include "pieceinvalid.h"
+#include "piecepawn.h"
+
 const std::string pieceChr = "kqrbnpKQRBNP.";
 
 class Board
@@ -50,6 +54,7 @@ class Board
 
     public:
         unsigned char table[120];
+        Piece pieceTable[120];
         unsigned char castlingProhibited[2];		// bit0: short castling, bit1: long castling
         unsigned char enPassantTargetPosition;
         unsigned char nextPlayer;

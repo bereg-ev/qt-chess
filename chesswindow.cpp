@@ -33,12 +33,13 @@ ChessWindow::ChessWindow(QWidget *parent) : QWidget(parent), ui(new Ui::ChessWin
 
 //    Board b = Board("........ .Q...N.. ...k.P.. ........ ......B. ....K... ........ ........", "033");    // !! huszart leutteti
 //    Board b("N..QK... ........ B.n.p..N ..q.p..R ..b..... .....n.P .......P ..kr....", "033");
-
 //    Board b("........ .B...... ........ .....K.. ........ ....k... ..Q..P.. ........", "033");
+
 
     Board b;
 
-//    state = 1;  // gep kezd!
+//    Board b("........ ........ ....q... ........ ...P..PP ......K. ........ ....k..r", "033");
+    state = 0;  // gep kezd!
 
     boards.push_back(Game(b, 0));
 
