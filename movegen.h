@@ -8,6 +8,7 @@
 #define DEBUG               1
 #define NO_CASTLE_CHECK     2
 #define CHECK_VALIDITY      4
+#define ONLY_HITS           8
 
 class MoveGen
 {

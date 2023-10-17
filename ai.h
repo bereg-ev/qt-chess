@@ -5,6 +5,7 @@
 #include "board.h"
 #include "game.h"
 #include "principlevariation.h"
+#include "movegen.h"
 
 #define AI_FLAG_NONE                        0
 #define AI_FLAG_DEBUG                       1
@@ -52,6 +53,7 @@ class Ai
         int evaluateRepeatedTablesAsPossibleDrawEndResults(Board b);
         int checkIfMate(Board b);
         void aiDbg(Board b);
+        void printMoves(MoveGen m, char *s);
 
         Move tmpMoves[MAX_DEPTH];
 
