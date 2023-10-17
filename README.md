@@ -8,7 +8,7 @@ Features:
 - Enjoyable for non-professional chess players: if you always beat Level 1 of other chess programs, but unable to beat Level 2, this app is probably for you.
 
 Todo:
-- clean C++ desing (no classes for different pieces for now)
+- refactor C++ object model (we have new classes for different pieces, but not properly connected yet, switch-case for piece types)
 - improved move ordering and hash table for better performance
 - variable search depth
 - improved UI (different levels, selection of promotion and color, undo button, export / import games)

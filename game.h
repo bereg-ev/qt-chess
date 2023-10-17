@@ -1,7 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "board.h"
+#include "ai/board.h"
 
 class Game
 {

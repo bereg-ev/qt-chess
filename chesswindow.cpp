@@ -1,10 +1,10 @@
 #include "chesswindow.h"
 #include "./ui_chesswindow.h"
 
-#include "board.h"
-#include "evaluate.h"
-#include "movegen.h"
-#include "ai.h"
+#include "ai/board.h"
+#include "ai/evaluate.h"
+#include "ai/movegen.h"
+#include "ai/ai.h"
 #include "game.h"
 
 #include <QPixmap>
@@ -57,16 +57,17 @@ void ChessWindow::eventOnScreen(int x, int y)
         {
             MoveGen m = MoveGen(boards.back().board, CHECK_VALIDITY, 1);
 
-            for (int i = 0; i < m.moveNum; i++)
-                if (m.moves[i].from == newPos)
+
+            for (auto it = m.movesv.begin(); it != m.movesv.end(); it++)
+                if (it->from == newPos)
                     fromPos = newPos;
 
-            for (int i = 0; i < m.moveNum; i++)
+            for (auto it = m.movesv.begin(); it != m.movesv.end(); it++)
             {
-                if (m.moves[i].from == fromPos)
+                if (it->from == fromPos)
                 {
-                    greenPositions[m.moves[i].to] = 1;
-                    isPromote[m.moves[i].to] = ((m.moves[i].flags & CHESS_FLAG_PROMOTION) != 0);
+                    greenPositions[it->to] = 1;
+                    isPromote[it->to] = ((it->flags & CHESS_FLAG_PROMOTION) != 0);
                 }
             }
         }

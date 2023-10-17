@@ -19,27 +19,37 @@ set(PROJECT_SOURCES
         chesswindow.cpp
         chesswindow.h
         chesswindow.ui
-        board.h
-        board.cpp
-        move.h
-        move.cpp
         test.h
         test.cpp
-        movegen.h
-        movegen.cpp
-        evaluate.h
-        evaluate.cpp
-        ai.h
-        ai.cpp
+        ai/board.h
+        ai/board.cpp
+        ai/move.h
+        ai/move.cpp
+        ai/movegen.h
+        ai/movegen.cpp
+        ai/evaluate.h
+        ai/evaluate.cpp
+        ai/ai.h
+        ai/ai.cpp
+        ai/principlevariation.h
+        ai/principlevariation.cpp
         game.h
         game.cpp
-        principlevariation.h
-        principlevariation.cpp
         config.h
-        piece.h
-        piece.cpp
-        piecepawn.h piecepawn.cpp
-        pieceinvalid.h pieceinvalid.cpp
+        piece/piece.h
+        piece/piece.cpp
+        piece/pawn.h
+        piece/pawn.cpp
+        piece/knight.h
+        piece/knight.cpp
+        piece/king.h
+        piece/king.cpp
+        piece/bishop.h
+        piece/bishop.cpp
+        piece/rook.h
+        piece/rook.cpp
+        piece/queen.h
+        piece/queen.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

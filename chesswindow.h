@@ -8,7 +8,7 @@
 #include <QTouchEvent>
 #include <list>
 
-#include "board.h"
+#include "ai/board.h"
 #include "game.h"
 
 QT_BEGIN_NAMESPACE
