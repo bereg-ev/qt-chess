@@ -15,17 +15,17 @@ Evaluate::Evaluate(Board& inBoard, Board& outBoard, Move move, int depth)
     Queen qu = Queen();
     Pawn pa = Pawn();
 
-    unsigned char coloredPiece = inBoard.table[move.from];
+    unsigned char coloredPiece = inBoard.getPieceType(move.from);
     int piece = coloredPiece & 0x7f;
     int isEnPassant = (piece == PIECE_PAWN && move.to == inBoard.enPassantTargetPosition);
 
     outBoard = inBoard;
     outBoard.enPassantTargetPosition = 0;
-    char hitPiece = isEnPassant ? outBoard.table[inBoard.enPassantTargetPosition + ((coloredPiece & 0x80) == 0 ? 10 : -10)] : outBoard.table[move.to];
+    char hitPiece = isEnPassant ? outBoard.getPieceType(inBoard.enPassantTargetPosition + ((coloredPiece & 0x80) == 0 ? 10 : -10)) : outBoard.getPieceType(move.to);
 
     if (hitPiece != EMPTY_POSITION)
     {
-        assert((!isEnPassant && (outBoard.table[move.to] >> 7) != outBoard.nextPlayer) || isEnPassant);          // can't hit your own piece
+        assert((!isEnPassant && (outBoard.getPiece(move.to) >> 7) != outBoard.nextPlayer) || isEnPassant);          // can't hit your own piece
         outBoard.pieceValue[outBoard.nextPlayer ^ 1] -= piecesToValues[hitPiece & 0x7f];
         outBoard.posValue[outBoard.nextPlayer ^ 1] -= posValTableCenter[move.to];
     }
@@ -33,11 +33,11 @@ Evaluate::Evaluate(Board& inBoard, Board& outBoard, Move move, int depth)
     outBoard.posValue[outBoard.nextPlayer] -= posValTableCenter[move.from];
     outBoard.posValue[outBoard.nextPlayer] += posValTableCenter[move.to];
 
-    outBoard.table[move.to] = inBoard.table[move.from];
-    outBoard.table[move.from] = EMPTY_POSITION;
+    outBoard.setPiece(move.to, inBoard.getPieceType(move.from));
+    outBoard.setPiece(move.from, EMPTY_POSITION);
 
     if (isEnPassant)
-        outBoard.table[inBoard.enPassantTargetPosition + ((coloredPiece & 0x80) == 0 ? 10 : -10)] = EMPTY_POSITION;
+        outBoard.setPiece(inBoard.enPassantTargetPosition + ((coloredPiece & 0x80) == 0 ? 10 : -10), EMPTY_POSITION);
 
     switch (piece)
     {

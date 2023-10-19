@@ -11,3 +11,8 @@ void Bishop::moveGen(MoveGen *m)
 {
     moveMultipleIn4Directions(m, moveBishop);
 };
+
+int Bishop::getClass()
+{
+    return PIECE_BISHOP;
+}

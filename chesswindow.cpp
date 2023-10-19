@@ -135,7 +135,7 @@ void ChessWindow::paintEvent(QPaintEvent *event)
         for (int col = 0; col < 8; col++)
         {
             char txt [16];
-            unsigned char c = boards.back().board.table[10 * (row + 2) + col + 1];
+            unsigned char c = boards.back().board.getPieceType(10 * (row + 2) + col + 1);
             std::string piece;
 
             switch (c & 0x7f)

@@ -23,3 +23,9 @@ void Rook::eval(Board& inBoard, Board& outBoard, Move move, int depth)
     else if (inBoard.nextPlayer == 1 && move.from == 28)
         outBoard.castlingProhibited[1] |= CASTLING_SHORT;
 }
+
+int Rook::getClass()
+{
+    return PIECE_ROOK;
+}
+

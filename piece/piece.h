@@ -21,9 +21,11 @@ class Piece
         int getType();
         void moveMultipleIn4Directions(MoveGen *movegen, const int *directions);
         int movePiece(MoveGen *movegen, int relative);
+        void setBlack();
 
-        virtual void moveGen(MoveGen *movegen) {};
-        virtual void eval(Board& inBoard, Board& outBoard, Move move, int depth) {};
+        virtual void moveGen(MoveGen *movegen) { };
+        virtual void eval(Board& inBoard, Board& outBoard, Move move, int depth) { };
+        virtual int getClass() { return 0; };
 };
 
 #include "king.h"

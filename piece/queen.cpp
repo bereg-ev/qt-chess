@@ -12,3 +12,8 @@ void Queen::moveGen(MoveGen *m)
     moveMultipleIn4Directions(m, moveBishop);
     moveMultipleIn4Directions(m, moveRook);
 };
+
+int Queen::getClass()
+{
+    return PIECE_QUEEN;
+}

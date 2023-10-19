@@ -9,23 +9,23 @@ using namespace std;
 
 char Board::getPieceByScreenCoordinates(int x, int y)
 {
-    int piece = table[10 * (y + 2) + 1 + x];
+    int piece = table[10 * (y + 2) + 1 + x].getType();
 
     return piece == 0 ? ' ' : (piece < 7 ? pieceChr[piece - 1] : pieceChr[((piece - 1) & 0x7f) + 6]);
 }
 
 void Board::initWithHumanReadableString(std::string newTable, std::string flags)
 {
-    const unsigned char pieces[13] = {PIECE_KING, PIECE_QUEEN, PIECE_ROOK, PIECE_BISHOP, PIECE_KNIGHT, PIECE_PAWN,
-                       0x80 + PIECE_KING, 0x80 + PIECE_QUEEN, 0x80 + PIECE_ROOK, 0x80 + PIECE_BISHOP, 0x80 + PIECE_KNIGHT, 0x80 + PIECE_PAWN, 0};
+//    const unsigned char pieces[13] = {PIECE_KING, PIECE_QUEEN, PIECE_ROOK, PIECE_BISHOP, PIECE_KNIGHT, PIECE_PAWN,
+//                       0x80 + PIECE_KING, 0x80 + PIECE_QUEEN, 0x80 + PIECE_ROOK, 0x80 + PIECE_BISHOP, 0x80 + PIECE_KNIGHT, 0x80 + PIECE_PAWN, 0};
     const int piecesToValues[6] = {VAL_KING, VAL_QUEEN, VAL_ROOK, VAL_BISHOP, VAL_KNIGHT, VAL_PAWN};
     assert(flags.length() == 3);
     assert(((newTable.length() == 64) || (newTable.length() == 71)));         // lines separated with spaces
 
-    memset(&table[0], OUTSIDE_OF_BOARD, sizeof(table));
+//    memset(&table[0], OUTSIDE_OF_BOARD, sizeof(table));
 
     for (int i = 0; i < 120; i++)
-        pieceTable[i] = Piece(OUTSIDE_OF_BOARD);
+        table[i] = Piece(OUTSIDE_OF_BOARD);
 
     pieceValue[0] = pieceValue[1] = posValue[0] = posValue[1] = 0;
 
@@ -34,17 +34,33 @@ void Board::initWithHumanReadableString(std::string newTable, std::string flags)
         for (int col = 0; col < 8; col++)
         {
             char piece = newTable[line * (newTable.length() == 64 ? 8 : 9) + col];
-//            char piece = newTable[line * 8 + col];
-
-            int hit = 0;
 
             for (int i = 0; i < 13; i++)
             {
-                if (piece == pieceChr[i])
+                if (piece == pieceChr[i])       // "kqrbnpKQRBNP."
                 {
-                    table[10 * (line + 2) + col + 1] = pieces[i];
-                    pieceTable[10 * (line + 2) + col + 1] = Piece(pieces[i]);
-                    hit = 1;
+                    Piece p = Pawn();
+
+                    if (i == 12)
+                        p = Piece(EMPTY_POSITION);
+                    else
+                    {
+                        switch(i % 6)
+                        {
+                            case 0: p = King(); break;
+                            case 1: p = Queen(); break;
+                            case 2: p = Rook(); break;
+                            case 3: p = Bishop(); break;
+                            case 4: p = Knight(); break;
+                            case 5: p = Pawn(); break;
+                        }
+
+                        if (i >= 6)
+                            p.setBlack();
+                    }
+
+
+                    table[10 * (line + 2) + col + 1] = p;
 
                     if (i < 6)
                     {
@@ -86,10 +102,15 @@ Board::Board(std::string newTable, std::string flags)
     initWithHumanReadableString(newTable, flags);
 }
 
-bool Board::operator== (const Board& b)
+bool Board::operator== (Board& b)
 {
-    return (memcmp(this->table, b.table, sizeof(table)) == 0 && this->nextPlayer == b.nextPlayer && this->castlingProhibited[0] == b.castlingProhibited[0] && this->castlingProhibited[1] == b.castlingProhibited[1]) ;
+    for (int i = 0; i < 120; i++)
+        if (getPieceType(i) != b.getPieceType(i))
+            return false;
+
+    return (this->nextPlayer == b.nextPlayer && this->castlingProhibited[0] == b.castlingProhibited[0] && this->castlingProhibited[1] == b.castlingProhibited[1]) ;
 }
+
 /*
 void Board::operator= (const Board& b)
 {
@@ -119,7 +140,7 @@ void Board::print0(int mode)
     {
         for (int col = 0; col < 8; col++)
         {
-            unsigned char piece = table[(row + 2) * 10 + 1 + col];
+            unsigned char piece = table[(row + 2) * 10 + 1 + col].getType();
 
             if ((piece & 0x7f) <= 6)
                 printf("%c", piece >= 0x80 ? blackPiece[piece & 0x7f] : whitePiece[piece & 0x7f]);
@@ -141,3 +162,20 @@ void Board::println()
 {
     print0(1);
 }
+
+unsigned char Board::getPieceType(int i)
+{
+    return table[i].getType();
+}
+
+Piece Board::getPiece(int i)
+{
+    return table[i];
+}
+
+void Board::setPiece(int i, unsigned char type)
+{
+    table[i] = Piece(type);
+}
+
+

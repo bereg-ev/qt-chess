@@ -14,8 +14,9 @@ class King: public Piece
         King();
         int checkIfKingIsHitable(int pos, Board &board);
 
-        virtual void moveGen(MoveGen *m);
-        virtual void eval(Board& inBoard, Board& outBoard, Move move, int depth);
+        void moveGen(MoveGen *m);
+        void eval(Board& inBoard, Board& outBoard, Move move, int depth);
+        int getClass();
 };
 
 #endif // PIECEKING_H

@@ -61,10 +61,10 @@ void MoveGen::checkValidity()
         int ok = 1;
 
         for (auto newIt = m.movesv.begin(); newIt != m.movesv.end(); newIt++)
-            if ((newBoard.table[newIt->to] & 0x7f) == PIECE_KING)
+            if ((newBoard.getPieceType(newIt->to) & 0x7f) == PIECE_KING)
                 ok = 0;
 
-        if ((board.table[oldIt->to] & 0x7f) == PIECE_KING)
+        if ((board.getPieceType(oldIt->to) & 0x7f) == PIECE_KING)
             ok = 0;
 
         if (ok)
@@ -98,11 +98,11 @@ MoveGen::MoveGen(Board& board, int flags, int depth) : board(board)
 
     for (position = 21; position < 99; position++)
     {
-        if (board.table[position] == OUTSIDE_OF_BOARD || board.table[position] == EMPTY_POSITION)
+        if (board.getPieceType(position) == OUTSIDE_OF_BOARD || board.getPieceType(position) == EMPTY_POSITION)
             continue;
 
-        piece = board.table[position] & 0x7f;
-        color = (board.table[position] & 0x80) != 0;
+        piece = board.getPieceType(position) & 0x7f;
+        color = (board.getPieceType(position) & 0x80) != 0;
 
         if (color != board.nextPlayer)
             continue;
@@ -110,15 +110,25 @@ MoveGen::MoveGen(Board& board, int flags, int depth) : board(board)
         if (debug && piece != EMPTY_POSITION && piece != OUTSIDE_OF_BOARD)
             printf("MoveGen piece %d at %d\n", piece, position);
 
+//        board.table[position].moveGen(this);
+
         switch(piece)
         {
-            case PIECE_PAWN:    pa.moveGen(this); break;
-            case PIECE_KNIGHT:  kn.moveGen(this); break;
+            case PIECE_PAWN:
+                pa.moveGen(this);
+//                board.table[position].moveGen(this);
+                break;
+
+            case PIECE_KNIGHT:
+                kn.moveGen(this);
+//                board.table[position].moveGen(this);
+                break;
             case PIECE_BISHOP:  bi.moveGen(this); break;
             case PIECE_ROOK:    ro.moveGen(this); break;
             case PIECE_QUEEN:   qu.moveGen(this); break;
             case PIECE_KING:    ki.moveGen(this); break;
         }
+
     }
 
 //    for (auto it = movesv.begin(); it != movesv.end(); it++)

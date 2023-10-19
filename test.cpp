@@ -184,7 +184,7 @@ void Test::testCastle()
     myAssert(600, moves1.movesv.size() == 15);
     myAssert(601, moves1.checkIfMoveIsValid(Move("e1g1")));                // check if short castle is a valid move
     Evaluate eval1 = Evaluate(board1, outBoard, Move("e1g1"), 1);
-    myAssert(602, outBoard.table[98] == 0 && outBoard.table[96] == PIECE_ROOK);
+    myAssert(602, outBoard.getPieceType(98) == 0 && outBoard.getPieceType(96) == PIECE_ROOK);
 
     Board board2("........ ........ ........ ........ ........ ........ ........ ....k..r", "033");            // WHITE castle prohibited
     MoveGen moves2 = MoveGen(board2, NO_DEBUG, 1);
@@ -200,7 +200,7 @@ void Test::testCastle()
     myAssert(606, moves4.movesv.size() == 15);
     myAssert(607, moves4.checkIfMoveIsValid(Move("e8g8")));                // check if short castle is a valid move
     Evaluate eval4 = Evaluate(board4, outBoard, Move("e8g8"), 1);
-    myAssert(608, outBoard.table[28] == 0 && outBoard.table[26] == (PIECE_ROOK + 0x80));
+    myAssert(608, outBoard.getPieceType(28) == 0 && outBoard.getPieceType(26) == (PIECE_ROOK + 0x80));
 
     Board board5("....K..R ........ ........ ........ ........ ........ ........ ........", "133");            // BLACK castle prohibited
     MoveGen moves5 = MoveGen(board5, NO_DEBUG, 1);
@@ -216,7 +216,7 @@ void Test::testCastle()
     myAssert(612, moves7.movesv.size() == 16);
     myAssert(613, moves7.checkIfMoveIsValid(Move("e1c1")));                // check if long castle is a valid move
     Evaluate eval7 = Evaluate(board7, outBoard, Move("e1c1"), 1);
-    myAssert(614, outBoard.table[91] == 0 && outBoard.table[94] == PIECE_ROOK);
+    myAssert(614, outBoard.getPieceType(91) == 0 && outBoard.getPieceType(94) == PIECE_ROOK);
 
     Board board8("........ ........ ........ ........ ........ ........ ........ r...k...", "033");            // WHITE castle prohibited
     MoveGen moves8 = MoveGen(board8, NO_DEBUG, 1);
@@ -232,7 +232,7 @@ void Test::testCastle()
     myAssert(618, moves14.movesv.size() == 16);
     myAssert(619, moves14.checkIfMoveIsValid(Move("e8c8")));                // check if long castle is a valid move
     Evaluate eval14 = Evaluate(board14, outBoard, Move("e8c8"), 1);
-    myAssert(620, outBoard.table[21] == 0 && outBoard.table[24] == (PIECE_ROOK + 0x80));
+    myAssert(620, outBoard.getPieceType(21) == 0 && outBoard.getPieceType(24) == (PIECE_ROOK + 0x80));
 
     Board board15("R...K... ........ ........ ........ ........ ........ ........ ........", "133");            // BLACK castle prohibited
     MoveGen moves15 = MoveGen(board15, NO_DEBUG, 1);
@@ -309,10 +309,10 @@ void Test::testEnPassant()
     myAssert(802, moves1.checkIfMoveIsValid(Move("f5g6")));        // check if we can do WHITE en-passant after
 
     Evaluate e1b = Evaluate(board1b, board1c, Move("h5g6"), 1);
-    myAssert(803, board1c.table[57] == EMPTY_POSITION);
+    myAssert(803, board1c.getPieceType(57) == EMPTY_POSITION);
     myAssert(804, board1c.pieceValue[1] - board1b.pieceValue[1] == -VAL_PAWN);
     Evaluate e1c = Evaluate(board1b, board1c, Move("f5g6"), 1);
-    myAssert(805, board1c.table[57] == EMPTY_POSITION);
+    myAssert(805, board1c.getPieceType(57) == EMPTY_POSITION);
     myAssert(806, board1c.pieceValue[1] - board1b.pieceValue[1] == -VAL_PAWN);
 
     Board board2("....K... ........ ........ ........ .P.P.... ........ ..p..... .......k", "033");
@@ -325,10 +325,10 @@ void Test::testEnPassant()
     myAssert(809, moves2.checkIfMoveIsValid(Move("d4c3")));        // check if we can do BLACK en-passant after
 
     Evaluate e2b = Evaluate(board2b, board2c, Move("b4c3"), 1);
-    myAssert(810, board2c.table[63] == EMPTY_POSITION);
+    myAssert(810, board2c.getPieceType(63) == EMPTY_POSITION);
     myAssert(811, board2c.pieceValue[0] - board2b.pieceValue[0] == -VAL_PAWN);
     Evaluate e2c = Evaluate(board2b, board2c, Move("d4c3"), 1);
-    myAssert(812, board2c.table[63] == EMPTY_POSITION);
+    myAssert(812, board2c.getPieceType(63) == EMPTY_POSITION);
     myAssert(813, board2c.pieceValue[0] - board2b.pieceValue[0] == -VAL_PAWN);
 }
 
@@ -432,9 +432,31 @@ void Test::testAi()
 
 }
 
+#include <functional>
+
 Test::Test()
 {
     numOfTestsDone = 0;
+/*
+    Pawn p;
+    printf("PAWN type = %d, class = %d\n", p.getType(), p.getClass());
+
+    Queen q;
+    printf("QUEEN type = %d, class = %d\n", q.getType(), q.getClass());
+
+    Piece *x = &p;
+    printf("X type = %d, class = %d\n", x->getType(), x->getClass());
+    Piece *y = &q;
+    printf("Y type = %d, class = %d\n", y->getType(), y->getClass());
+
+    std::vector<Piece*> arr = {x, y};
+    printf("V[0] type = %d, class = %d\n", arr[0]->getType(), arr[0]->getClass());
+    printf("V[1] type = %d, class = %d\n", arr[1]->getType(), arr[1]->getClass());
+
+    return;
+*/
+
+
 /*
     Board board5("R..R...K P.....PP ....r... ..Q..P.q .Nbr.... ....p... .p...ppp ......k.", "033");
     Ai ai5 = Ai(board5, 6, AI_FLAG_ALL);    // https://artline.hu/sakk_matt-harom-lepes,  r2r3k/p5pp/4R3/2q2p1Q/1nBR4/4P3/1P3PPP/6K1 w - - 0 1
@@ -480,6 +502,11 @@ Test::Test()
 }
 
 /*
+// speed: C++ verzio 2023.10.18.
+
+BEST MOVE:  f2 f1-q, val=-15996, 172050 moves in 123 msec
+Principle Variation = f2 f1-q, e3 d4, f1 f4, d4 e3, c2 e4, `: `:
+BEST MOVE:  f6 f5, val=-1661, 494905 moves in 539 msec
 
 // pozicio ertekeles:
    - sokkal nagyobb valtozatossagot visz be a lepesek ertekebe, sokkal jobb alfa-beta lesz belole

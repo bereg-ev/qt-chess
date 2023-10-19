@@ -13,6 +13,7 @@ class Queen: public Piece
     public:
     Queen();
         void moveGen(MoveGen *movegen);
+        int getClass();
 };
 
 #endif // PIECEQUEEN_H

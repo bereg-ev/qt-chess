@@ -23,7 +23,7 @@ int Ai::checkIfMate(Board b)
     MoveGen m = MoveGen(fake, NO_DEBUG, 0);
 
     for (auto it = m.movesv.begin(); it != m.movesv.end(); it++)
-        if ((fake.table[it->to] & 0x7f) == PIECE_KING)
+        if ((fake.getPieceType(it->to) & 0x7f) == PIECE_KING)
             return 1;
 
     return 0;

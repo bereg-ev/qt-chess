@@ -13,6 +13,7 @@ class Knight: public Piece
     public:
         Knight();
         void moveGen(MoveGen *movegen);
+        int getClass();
 };
 
 #endif // PIECEKNIGHT_H

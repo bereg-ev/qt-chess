@@ -13,6 +13,7 @@ class Bishop: public Piece
     public:
         Bishop();
         void moveGen(MoveGen *movegen);
+        int getClass();
 };
 
 #endif // PIECEBISHOP_H

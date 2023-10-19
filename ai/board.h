@@ -49,10 +49,9 @@ class Board
     private:
         void initWithHumanReadableString(std::string newTable, std::string flags);
         Move move;
+        Piece table[120];
 
     public:
-        unsigned char table[120];
-        Piece pieceTable[120];
         unsigned char castlingProhibited[2];		// bit0: short castling, bit1: long castling
         unsigned char enPassantTargetPosition;
         unsigned char nextPlayer;
@@ -62,12 +61,14 @@ class Board
 
         Board();
         Board(std::string table, std::string flags);
-        bool operator== (const Board& b);
-//        void  operator= (const Board& b);
+        bool operator== (Board& b);
         char getPieceByScreenCoordinates(int x, int y);
         void print0(int mode);
         void print();
         void println();
+        unsigned char getPieceType(int i);
+        Piece getPiece(int i);
+        void setPiece(int i, unsigned char type);
 };
 
 

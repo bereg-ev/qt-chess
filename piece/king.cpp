@@ -12,7 +12,7 @@ int King::checkIfKingIsHitable(int pos, Board &board)
     Board b = board;
 
 //   b.table[95 - board.nextPlayer * 70] = 0;        // remove the existing king so we can have only 1 king if we add one
-    b.table[pos] = PIECE_KING + (board.nextPlayer ? 0x80 : 0);
+    b.setPiece(pos, PIECE_KING + (board.nextPlayer ? 0x80 : 0));
     b.nextPlayer = 1 - b.nextPlayer;
     MoveGen moves = MoveGen(b, NO_CASTLE_CHECK, 0);
 
@@ -39,7 +39,7 @@ void King::moveGen(MoveGen *m)
     }
 
     if ((m->board.castlingProhibited[m->board.nextPlayer] & CASTLING_SHORT) == 0)
-        if (m->board.table[shortCastle[3 * m->board.nextPlayer + 1]] == EMPTY_POSITION && m->board.table[shortCastle[3 * m->board.nextPlayer + 2]] == EMPTY_POSITION)
+        if (m->board.getPieceType(shortCastle[3 * m->board.nextPlayer + 1]) == EMPTY_POSITION && m->board.getPieceType(shortCastle[3 * m->board.nextPlayer + 2]) == EMPTY_POSITION)
         {
             if ((m->flags & NO_CASTLE_CHECK) != 0)
                 hitable = 0;
@@ -55,7 +55,7 @@ void King::moveGen(MoveGen *m)
         }
 
     if ((m->board.castlingProhibited[m->board.nextPlayer] & CASTLING_LONG) == 0)
-        if (m->board.table[longCastle[4 * m->board.nextPlayer + 1]] == EMPTY_POSITION && m->board.table[longCastle[4 * m->board.nextPlayer + 2]] == EMPTY_POSITION && m->board.table[longCastle[4 * m->board.nextPlayer + 3]] == EMPTY_POSITION)
+        if (m->board.getPieceType(longCastle[4 * m->board.nextPlayer + 1]) == EMPTY_POSITION && m->board.getPieceType(longCastle[4 * m->board.nextPlayer + 2]) == EMPTY_POSITION && m->board.getPieceType(longCastle[4 * m->board.nextPlayer + 3]) == EMPTY_POSITION)
         {
             if ((m->flags & NO_CASTLE_CHECK) != 0)
                 hitable = 0;
@@ -76,24 +76,30 @@ void King::eval(Board& inBoard, Board& outBoard, Move move, int depth)
 {
     if (inBoard.nextPlayer == 0 && move.from == 95 && move.to == 97)
     {
-       outBoard.table[96] = outBoard.table[98];
-       outBoard.table[98] = 0;
+       outBoard.setPiece(96, outBoard.getPieceType(98));
+       outBoard.setPiece(98, 0);
     }
     else if (inBoard.nextPlayer == 0 && move.from == 95 && move.to == 93)
     {
-       outBoard.table[94] = outBoard.table[91];
-       outBoard.table[91] = 0;
+       outBoard.setPiece(94, outBoard.getPieceType(91));
+       outBoard.setPiece(91, 0);
     }
     else if (inBoard.nextPlayer == 1 && move.from == 25 && move.to == 27)
     {
-       outBoard.table[26] = outBoard.table[28];
-       outBoard.table[28] = 0;
+       outBoard.setPiece(26, outBoard.getPieceType(28));
+       outBoard.setPiece(28, 0);
     }
     else if (inBoard.nextPlayer == 1 && move.from == 25 && move.to == 23)
     {
-       outBoard.table[24] = outBoard.table[21];
-       outBoard.table[21] = 0;
+       outBoard.setPiece(24, outBoard.getPieceType(21));
+       outBoard.setPiece(21, 0);
     }
 
     outBoard.castlingProhibited[inBoard.nextPlayer] = CASTLING_SHORT | CASTLING_LONG;
 }
+
+int King::getClass()
+{
+    return PIECE_KING;
+}
+

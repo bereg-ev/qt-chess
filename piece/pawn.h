@@ -21,8 +21,9 @@ class Pawn: public Piece
         Pawn();
         void pawnMovePiece(MoveGen *m, int relative);
 
-        virtual void moveGen(MoveGen *m);
-        virtual void eval(Board& inBoard, Board& outBoard, Move move, int depth);
+        void moveGen(MoveGen *m);
+        void eval(Board& inBoard, Board& outBoard, Move move, int depth);
+        int getClass();
 };
 
 #endif // PAWN_H

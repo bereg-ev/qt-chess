@@ -14,6 +14,7 @@ class Rook: public Piece
     Rook();
         void moveGen(MoveGen *movegen);
         void eval(Board& inBoard, Board& outBoard, Move move, int depth);
+        int getClass();
 };
 
 #endif // PIECEROOK_H

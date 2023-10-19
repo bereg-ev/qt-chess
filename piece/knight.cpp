@@ -15,3 +15,8 @@ void Knight::moveGen(MoveGen *m)
     for (int i = 0; i < sizeof(moveKnight) / sizeof(int); i++)
         movePiece(m, moveKnight[i]);
 };
+
+int Knight::getClass()
+{
+    return PIECE_KNIGHT;
+}

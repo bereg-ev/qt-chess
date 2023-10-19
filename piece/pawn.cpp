@@ -34,18 +34,18 @@ void Pawn::moveGen(MoveGen *m)
     if (m->debug)
         printf("movePawn at %d\n", m->position);
 
-    if (m->board.table[m->position + moveOneForward[m->color]] == EMPTY_POSITION)
+    if (m->board.getPieceType(m->position + moveOneForward[m->color]) == EMPTY_POSITION)
     {
         pawnMovePiece(m, moveOneForward[m->color]);
 
-        if (m->position / 10 == startLine[m->color] && m->board.table[m->position + moveTwoForward[m->color]] == EMPTY_POSITION)
+        if (m->position / 10 == startLine[m->color] && m->board.getPieceType(m->position + moveTwoForward[m->color]) == EMPTY_POSITION)
             pawnMovePiece(m, moveTwoForward[m->color]);
     }
 
-    if (m->board.table[m->position + hitLeft[m->color]] != EMPTY_POSITION && (m->board.table[m->position + hitLeft[m->color]] >> 7) != m->color)
+    if (m->board.getPieceType(m->position + hitLeft[m->color]) != EMPTY_POSITION && (m->board.getPieceType(m->position + hitLeft[m->color]) >> 7) != m->color)
         pawnMovePiece(m, hitLeft[m->color]);
 
-    if (m->board.table[m->position + hitRight[m->color]] != EMPTY_POSITION && (m->board.table[m->position + hitRight[m->color]] >> 7) != m->color)
+    if (m->board.getPieceType(m->position + hitRight[m->color]) != EMPTY_POSITION && (m->board.getPieceType(m->position + hitRight[m->color]) >> 7) != m->color)
         pawnMovePiece(m, hitRight[m->color]);
 
     if (m->position + hitLeft[m->color] == m->board.enPassantTargetPosition)
@@ -60,7 +60,7 @@ void Pawn::eval(Board& inBoard, Board& outBoard, Move move, int depth)
     if ((move.flags & CHESS_FLAG_PROMOTION) != 0)
     {
         assert(move.promotion > 0 && move.promotion < 7);
-        outBoard.table[move.to] = move.promotion + (outBoard.nextPlayer ? 0x80 : 0);
+        outBoard.setPiece(move.to, move.promotion + (outBoard.nextPlayer ? 0x80 : 0));
         outBoard.pieceValue[outBoard.nextPlayer] += (piecesToValues[move.promotion] - VAL_PAWN);
 
         if (depth == 0)
@@ -73,5 +73,10 @@ void Pawn::eval(Board& inBoard, Board& outBoard, Move move, int depth)
 
         outBoard.posValue[outBoard.nextPlayer] += 4;        // go to promotion !!!
     }
+}
+
+int Pawn::getClass()
+{
+    return PIECE_PAWN;
 }
 

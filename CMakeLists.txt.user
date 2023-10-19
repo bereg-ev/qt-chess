@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 8.0.2, 2023-10-03T12:31:07. -->
+<!-- Written by QtCreator 8.0.2, 2023-10-17T14:19:51. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -550,7 +550,7 @@
      <value type="QString" key="identifier">33F582E6-C77F-40D9-99F4-0724DDC40C70</value>
      <value type="int" key="type">1</value>
     </valuemap>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Run  on iOS Simulator</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Run chess on iOS Simulator</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.IosRunConfiguration:chess</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">chess</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
@@ -802,7 +802,7 @@
      <value type="QString" key="identifier"></value>
      <value type="int" key="type">0</value>
     </valuemap>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Run  on *unknown*</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Run chess on *unknown*</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.IosRunConfiguration:chess</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">chess</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
